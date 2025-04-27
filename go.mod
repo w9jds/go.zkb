@@ -1,4 +1,4 @@
-module github.com/w9jds/zkb
+module github.com/w9jds/go.zkb
 
 go 1.13
 
