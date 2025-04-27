@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+
+	esi "github.com/w9jds/go.esi"
 )
 
 // ZkillResponse struct to be returned when calling the zkill api
@@ -14,8 +16,9 @@ type ZkillResponse struct {
 
 // RedisResponse struct to be returned when calling the redis zkill queue
 type RedisResponse struct {
-	ID  uint32     `json:"killID,omitempty"`
-	Zkb zkillboard `json:"zkb,omitempty"`
+	ID       uint32       `json:"killID,omitempty"`
+	Zkb      zkillboard   `json:"zkb,omitempty"`
+	Killmail esi.KillMail `json:"killmail,omitempty"`
 }
 
 type redisPackage struct {
@@ -23,10 +26,17 @@ type redisPackage struct {
 }
 
 type zkillboard struct {
-	Hash        string  `json:"hash,omitempty"`
-	LocationID  uint32  `json:"locationID,omitempty"`
-	FittedValue float64 `json:"fittedValue,omitempty"`
-	TotalValue  float64 `json:"totalValue,omitempty"`
+	LocationID     uint32   `json:"locationID,omitempty"`
+	Hash           string   `json:"hash,omitempty"`
+	FittedValue    float64  `json:"fittedValue,omitempty"`
+	DroppedValue   float64  `json:"droppedValue,omitempty"`
+	DestroyedValue float64  `json:"destroyedValue,omitempty"`
+	TotalValue     float64  `json:"totalValue,omitempty"`
+	NPC            bool     `json:"npc,omitempty"`
+	Solo           bool     `json:"solo,omitempty"`
+	Awox           bool     `json:"awox,omitempty"`
+	Labels         []string `json:"labels,omitempty"`
+	Href           string   `json:"href,omitempty"`
 }
 
 var zkillBase = "https://zkillboard.com/api"
