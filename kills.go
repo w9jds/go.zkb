@@ -40,7 +40,7 @@ type zkillboard struct {
 }
 
 var zkillBase = "https://zkillboard.com/api"
-var redisqBase = "https://redisq.zkillboard.com"
+var redisqBase = "https://zkillredisq.stream"
 
 // GetKillMail returns the basic information about the killmail from zkill
 func (zkb *Client) GetKillMail(killID string) (*ZkillResponse, error) {
