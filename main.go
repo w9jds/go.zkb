@@ -35,11 +35,11 @@ func (zkb Client) get(baseURI string, path string) ([]byte, error) {
 			message, error := ioutil.ReadAll(response.Body)
 			if error != nil {
 				log.Println(error)
-				time.Sleep(5 * time.Second)
+				time.Sleep(6 * time.Second)
 				continue
 			} else {
 				log.Println(string(message))
-				time.Sleep(5 * time.Second)
+				time.Sleep(6 * time.Second)
 				continue
 			}
 		} else {

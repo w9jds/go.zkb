@@ -14,11 +14,18 @@ type ZkillResponse struct {
 	Zkb zkillboard `json:"zkb,omitempty"`
 }
 
+type R2Z2Response struct {
+	ID         uint32       `json:"killmail_id,omitempty"`
+	Hash       string       `json:"hash,omitempty"`
+	UploadedAt uint32       `json:"uploaded_at,omitempty"`
+	SequenceID uint32       `json:"sequence_id,omitempty"`
+	Esi        esi.KillMail `json:"esi,omitempty"`
+}
+
 // RedisResponse struct to be returned when calling the redis zkill queue
 type RedisResponse struct {
-	ID       uint32       `json:"killID,omitempty"`
-	Zkb      zkillboard   `json:"zkb,omitempty"`
-	Killmail esi.KillMail `json:"killmail,omitempty"`
+	ID  uint32     `json:"killID,omitempty"`
+	Zkb zkillboard `json:"zkb,omitempty"`
 }
 
 type redisPackage struct {
@@ -41,6 +48,7 @@ type zkillboard struct {
 
 var zkillBase = "https://zkillboard.com/api"
 var redisqBase = "https://zkillredisq.stream"
+var r2z2Base = "https://r2z2.zkillboard.com"
 
 // GetKillMail returns the basic information about the killmail from zkill
 func (zkb *Client) GetKillMail(killID string) (*ZkillResponse, error) {
@@ -74,4 +82,41 @@ func (zkb *Client) GetRedisItem(queueID string) (*RedisResponse, error) {
 	}
 
 	return &bundle.Package, nil
+}
+
+func (zkb *Client) GetR2Z2Sequence() (*uint32, error) {
+	body, error := zkb.get(r2z2Base, "/ephemeral/sequence.json")
+	if error != nil {
+		log.Println("Error fetching starting sequence Id: ", error)
+		return nil, error
+	}
+
+	var sequence struct {
+		Sequence uint32 `json:"sequence"`
+	}
+
+	error = json.Unmarshal(body, &sequence)
+	if error != nil {
+		log.Println("Error parsing r2z2 sequence response")
+		return nil, error
+	}
+
+	return &sequence.Sequence, nil
+}
+
+func (zkb *Client) GetR2Z2KillMail(sequence uint32) (*R2Z2Response, error) {
+	body, error := zkb.get(r2z2Base, fmt.Sprintf("/ephemeral/%d.json", sequence))
+	if error != nil {
+		log.Println("Error fetching killmail from r2z2")
+		return nil, error
+	}
+
+	var killmail R2Z2Response
+	error = json.Unmarshal(body, &killmail)
+	if error != nil {
+		log.Println("Error parsing r2z2 killmail response")
+		return nil, error
+	}
+
+	return &killmail, nil
 }
