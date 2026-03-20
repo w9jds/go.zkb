@@ -20,6 +20,7 @@ type R2Z2Response struct {
 	UploadedAt uint32       `json:"uploaded_at,omitempty"`
 	SequenceID uint32       `json:"sequence_id,omitempty"`
 	Esi        esi.KillMail `json:"esi,omitempty"`
+	Zkb        zkillboard   `json:"zkb,omitempty"`
 }
 
 // RedisResponse struct to be returned when calling the redis zkill queue
@@ -84,11 +85,11 @@ func (zkb *Client) GetRedisItem(queueID string) (*RedisResponse, error) {
 	return &bundle.Package, nil
 }
 
-func (zkb *Client) GetR2Z2Sequence() (*uint32, error) {
+func (zkb *Client) GetR2Z2Sequence() (uint32, error) {
 	body, error := zkb.get(r2z2Base, "/ephemeral/sequence.json")
 	if error != nil {
 		log.Println("Error fetching starting sequence Id: ", error)
-		return nil, error
+		return 0, error
 	}
 
 	var sequence struct {
@@ -98,10 +99,10 @@ func (zkb *Client) GetR2Z2Sequence() (*uint32, error) {
 	error = json.Unmarshal(body, &sequence)
 	if error != nil {
 		log.Println("Error parsing r2z2 sequence response")
-		return nil, error
+		return 0, error
 	}
 
-	return &sequence.Sequence, nil
+	return sequence.Sequence, nil
 }
 
 func (zkb *Client) GetR2Z2KillMail(sequence uint32) (*R2Z2Response, error) {
