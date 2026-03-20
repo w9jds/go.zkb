@@ -28,8 +28,8 @@ func (zkb Client) get(baseURI string, path string) ([]byte, error) {
 
 	for i := 0; i < 3; i++ {
 		response, error := zkb.client.Do(request)
-		if error != nil {
-			log.Println(error)
+		if response.StatusCode == 404 {
+			time.Sleep(6 * time.Second)
 			continue
 		} else if response.StatusCode < 200 || response.StatusCode > 299 {
 			message, error := ioutil.ReadAll(response.Body)
@@ -42,6 +42,9 @@ func (zkb Client) get(baseURI string, path string) ([]byte, error) {
 				time.Sleep(6 * time.Second)
 				continue
 			}
+		} else if error != nil {
+			log.Println(error)
+			continue
 		} else {
 			return ioutil.ReadAll(response.Body)
 		}
