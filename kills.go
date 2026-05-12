@@ -6,6 +6,7 @@ import (
 	"log"
 
 	esi "github.com/w9jds/go.esi"
+	"k8s.io/klog"
 )
 
 // ZkillResponse struct to be returned when calling the zkill api
@@ -88,7 +89,7 @@ func (zkb *Client) GetRedisItem(queueID string) (*RedisResponse, error) {
 func (zkb *Client) GetR2Z2Sequence() (uint32, error) {
 	body, error := zkb.get(r2z2Base, "/ephemeral/sequence.json")
 	if error != nil {
-		log.Println("Error fetching starting sequence Id: ", error)
+		klog.Errorf("Failed Fetching Starting Sequence: %v", error)
 		return 0, error
 	}
 
@@ -98,7 +99,7 @@ func (zkb *Client) GetR2Z2Sequence() (uint32, error) {
 
 	error = json.Unmarshal(body, &sequence)
 	if error != nil {
-		log.Println("Error parsing r2z2 sequence response")
+		klog.Errorf("Failed Parsing R2Z2 Sequence: %v", error)
 		return 0, error
 	}
 
@@ -108,14 +109,13 @@ func (zkb *Client) GetR2Z2Sequence() (uint32, error) {
 func (zkb *Client) GetR2Z2KillMail(sequence uint32) (*R2Z2Response, error) {
 	body, error := zkb.get(r2z2Base, fmt.Sprintf("/ephemeral/%d.json", sequence))
 	if error != nil {
-		log.Println("Error fetching killmail from r2z2")
 		return nil, error
 	}
 
 	var killmail R2Z2Response
 	error = json.Unmarshal(body, &killmail)
 	if error != nil {
-		log.Println("Error parsing r2z2 killmail response")
+		klog.Errorf("Failed Parsing R2Z2 Killmail: %v", error)
 		return nil, error
 	}
 
